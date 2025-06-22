@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Form Pemesanan - WonderJourney</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #eaf4f9;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+
+    h2 {
+      text-align: center;
+      color: #2980b9;
+      margin-bottom: 25px;
+    }
+
+    label {
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    input[readonly] {
+      background-color: #f0f0f0;
+      cursor: not-allowed;
+    }
+
+    #harga {
+      font-weight: bold;
+      color: #27ae60;
+      margin-bottom: 20px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(to right, #3498db, #2c3e50);
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .struk {
+      display: none;
+      margin-top: 30px;
+      background: #f1f1f1;
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    .struk h3 {
+      text-align: center;
+      margin-bottom: 10px;
+      color: #2c3e50;
+    }
+
+    .struk p {
+      margin: 5px 0;
+    }
+
+    .back-link {
+      text-align: center;
+      display: block;
+      margin-top: 20px;
+      color: #3498db;
+      text-decoration: none;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Form Pemesanan</h2>
+    <form id="formPemesanan">
+      <label for="nama">Nama Lengkap</label>
+      <input type="text" id="nama" required>
+
+      <label for="email">Email</label>
+      <input type="email" id="email" required>
+
+      <label for="telepon">No. Telepon</label>
+      <input type="tel" id="telepon" required>
+
+      <label for="destinasi">Pilih Destinasi Wisata</label>
+      <select id="destinasi" onchange="tampilkanHarga()" required>
+        <option value="">-- Pilih Destinasi --</option>
+        <option value="Gunung Bromo">Gunung Bromo</option>
+        <option value="Raja Ampat">Raja Ampat</option>
+        <option value="Pantai Parangtritis">Pantai Parangtritis</option>
+        <option value="Kawah Putih Bandung">Kawah Putih Bandung</option>
+        <option value="Labuan Bajo">Labuan Bajo</option>
+        <option value="Kawah Ijen">Kawah Ijen</option>
+        <option value="Danau Toba">Danau Toba</option>
+        <option value="Gunung Rinjani">Gunung Rinjani</option>
+        <option value="Wakatobi">Wakatobi</option>
+      </select>
+
+      <p id="harga">Harga: -</p>
+
+      <label for="tanggal">Tanggal Pemesanan</label>
+      <input type="date" id="tanggal" readonly required>
+
+      <label for="jam">Jam Pemesanan</label>
+      <input type="text" id="jam" readonly required>
+
+      <label for="hari">Tiket Dipesan Untuk Hari</label>
+      <select id="hari" required>
+        <option value="">-- Pilih Hari --</option>
+        <option value="Senin">Senin</option>
+        <option value="Selasa">Selasa</option>
+        <option value="Rabu">Rabu</option>
+        <option value="Kamis">Kamis</option>
+        <option value="Jumat">Jumat</option>
+        <option value="Sabtu">Sabtu</option>
+        <option value="Minggu">Minggu</option>
+      </select>
+
+      <label for="bayar">Uang yang Dibayar</label>
+      <input type="number" id="bayar" required min="0">
+
+      <button type="submit">Kirim Pemesanan</button>
+    </form>
+
+    <div class="struk" id="strukPembayaran">
+      <h3>Struk Pembayaran</h3>
+      <p><strong>Nama:</strong> <span id="s_nama"></span></p>
+      <p><strong>Email:</strong> <span id="s_email"></span></p>
+      <p><strong>Telepon:</strong> <span id="s_telepon"></span></p>
+      <p><strong>Destinasi:</strong> <span id="s_destinasi"></span></p>
+      <p><strong>Harga:</strong> <span id="s_harga"></span></p>
+      <p><strong>Uang Dibayar:</strong> <span id="s_bayar"></span></p>
+      <p><strong>Kembalian:</strong> <span id="s_kembali"></span></p>
+      <p><strong>Tanggal Pemesanan:</strong> <span id="s_tanggal"></span></p>
+      <p><strong>Jam Pemesanan:</strong> <span id="s_jam"></span></p>
+      <p><strong>Tiket Untuk Hari:</strong> <span id="s_hari"></span></p>
+      <button onclick="downloadPDF()" style="margin-top: 20px; background-color: #27ae60;">Unduh Tiket PDF</button>
+    </div>
+
+    <a href="index.html" class="back-link">&larr; Kembali ke Beranda</a>
+  </div>
+
+  <script>
+    const hargaDestinasi = {
+      "Gunung Bromo": 1500000,
+      "Raja Ampat": 7500000,
+      "Pantai Parangtritis": 1200000,
+      "Kawah Putih Bandung": 750000,
+      "Labuan Bajo": 4200000,
+      "Kawah Ijen": 1800000,
+      "Danau Toba": 2800000,
+      "Gunung Rinjani": 3500000,
+      "Wakatobi": 6500000
+    };
+
+    function tampilkanHarga() {
+      const select = document.getElementById("destinasi");
+      const harga = document.getElementById("harga");
+      const destinasi = select.value;
+      if (hargaDestinasi[destinasi]) {
+        harga.textContent = "Harga: Rp" + hargaDestinasi[destinasi].toLocaleString();
+      } else {
+        harga.textContent = "Harga: -";
+      }
+    }
+
+    let lastData = {};
+
+    document.addEventListener("DOMContentLoaded", function() {
+      const now = new Date();
+      const today = now.toISOString().split('T')[0];
+      const jam = now.toLocaleTimeString('id-ID', {
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
+      });
+
+      document.getElementById("tanggal").value = today;
+      document.getElementById("jam").value = jam;
+    });
+
+    document.getElementById("formPemesanan").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const nama = document.getElementById("nama").value;
+      const email = document.getElementById("email").value;
+      const telepon = document.getElementById("telepon").value;
+      const destinasi = document.getElementById("destinasi").value;
+      const bayar = parseInt(document.getElementById("bayar").value);
+      const tanggal = document.getElementById("tanggal").value;
+      const jam = document.getElementById("jam").value;
+      const hari = document.getElementById("hari").value;
+      const harga = hargaDestinasi[destinasi];
+
+      if (!harga || bayar < harga) {
+        alert("Uang yang dibayar tidak cukup atau destinasi belum dipilih.");
+        return;
+      }
+
+      const kembali = bayar - harga;
+
+      document.getElementById("s_nama").textContent = nama;
+      document.getElementById("s_email").textContent = email;
+      document.getElementById("s_telepon").textContent = telepon;
+      document.getElementById("s_destinasi").textContent = destinasi;
+      document.getElementById("s_harga").textContent = "Rp" + harga.toLocaleString();
+      document.getElementById("s_bayar").textContent = "Rp" + bayar.toLocaleString();
+      document.getElementById("s_kembali").textContent = "Rp" + kembali.toLocaleString();
+      document.getElementById("s_tanggal").textContent = tanggal;
+      document.getElementById("s_jam").textContent = jam;
+      document.getElementById("s_hari").textContent = hari;
+
+      document.getElementById("strukPembayaran").style.display = "block";
+
+      lastData = { nama, email, telepon, destinasi, harga, bayar, kembali, tanggal, jam, hari };
+    });
+
+    function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF('landscape');
+
+      doc.setFillColor(41, 128, 185);
+      doc.roundedRect(10, 10, 277, 80, 5, 5, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(18);
+      doc.text("TIKET WISATA - WONDERJOURNEY", 25, 30);
+
+      doc.setFontSize(12);
+      doc.text(`Nama: ${lastData.nama}`, 25, 45);
+      doc.text(`Email: ${lastData.email}`, 25, 52);
+      doc.text(`Telepon: ${lastData.telepon}`, 25, 59);
+      doc.text(`Destinasi: ${lastData.destinasi}`, 25, 66);
+      doc.text(`Harga: Rp${lastData.harga.toLocaleString()}`, 25, 73);
+      doc.text(`Dibayar: Rp${lastData.bayar.toLocaleString()} | Kembalian: Rp${lastData.kembali.toLocaleString()}`, 25, 80);
+      doc.text(`Tanggal: ${lastData.tanggal} | Jam: ${lastData.jam}`, 150, 45);
+      doc.text(`Tiket untuk Hari: ${lastData.hari}`, 150, 52);
+
+      const barcodeValue = `${lastData.nama}-${lastData.destinasi}`;
+      const canvas = document.createElement('canvas');
+      JsBarcode(canvas, barcodeValue, {
+        format: "CODE128",
+        displayValue: false,
+        height: 30,
+        width: 1.5,
+        margin: 0
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+      doc.addImage(imgData, "PNG", 250, 25, 30, 30);
+
+      doc.save(`Tiket_${lastData.nama.replace(/\s+/g, '_')}.pdf`);
+    }
+  </script>
+</body>
+</html>
